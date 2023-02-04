@@ -1,0 +1,34 @@
+.containerStyle {
+    backdrop-filter: blur(20px);
+    background-color: rgba(240, 248, 255, 0.377);
+    height: 65px;
+    width: 100%;
+    position: fixed;
+}
+
+body{
+    position: absolute;
+    margin: 0px;
+}
+
+h3 {
+    color: aliceblue;
+}
+
+.navContainer {
+  display: flex;
+  width: 200px;
+  position: absolute;
+  right: 0px;
+  padding-right: 25px;
+}
+
+.navButton {
+  width: 100%;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+.navButton:hover {
+  background-color: #6c6b44c0;
+}

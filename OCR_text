@@ -1,0 +1,17 @@
+let defaultCleint = EdenAiApiDocumentation.ApiClient.instance;
+
+let Bearer = defaultClient.authentications['Bearer'];
+Bearer.apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWRmY2E3YmEtYWQyZS00ZDQyLTkyYmYtMTAyZWIwYjQwMDNhIiwidHlwZSI6ImFwaV90b2tlbiJ9.jDV10ubev-ZsRvuTwiFynWY11ZPqlhnAhnQyoNGuVBM'
+
+let apiInstance = new EdenAiApiDocumentation.OCRApi();
+let files = "files_example";
+let providers = "providers_example"
+let language = "english";
+
+apiInstance.ocr(files, provider, language, (error, data, response) => {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' +data);
+  }
+});

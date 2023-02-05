@@ -1,0 +1,148 @@
+import requests
+import json
+import os
+import sys
+import time
+import matplotlib.pyplot as plt
+#sys.path.append(r"site-packages")
+
+
+
+catergory_sums=[0,0,0,0,0,0,0]#from this line on copy directly
+category_names=["vegetables","fruits","grain","nuts","meat","dairy","dessert"]
+run_main=True
+run_ocr=False
+directory="testfold"# change this with the new dir
+
+def ocr_funct(in_file_name):
+    print("=== Python Receipt OCR Demo - Need help? Email support@asprise.com ===")
+    print(in_file_name)
+    print(directory)
+    path_to_im=str(directory)+"/"+str(in_file_name)
+
+    receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
+    imageFile = path_to_im #"rt.jpg" # // Modify this to use your own file if necessary
+    print(imageFile)
+    r = requests.post(receiptOcrEndpoint, data = { \
+      'client_id': 'TEST',        # Use 'TEST' for testing purpose \
+      'recognizer': 'auto',       # can be 'US', 'CA', 'JP', 'SG' or 'auto' \
+      'ref_no': 'ocr_python_123', # optional caller provided ref code \
+      }, \
+      files = {"file": open(imageFile, "rb")})
+    #print(r.text)
+    #print(type(r.text))
+    #print(r["ocr_type"])
+    with open("json_file.json", 'w', encoding='utf-8') as f:
+        json_data=r.text
+        json.dump(json_data,f)
+    f.close()
+    #print(r.text)
+    #print(r.text)
+
+#out_array
+
+def designate_category(string_in):
+    item_category="unknown"
+
+    vegetables=["CARROTS","PICKLES","SQUASH","LETTUCE","SPINACH"]
+    fruits=["TOMATO","APPLE","BANANA","BERRY"]
+    grain=["OAT","WHEAT","GRAIN","PITA"]
+    nuts=["PEANUT","ALMOND","CASHEW"]
+    dairy=["MILK","YOGURT","EGG","CREAM","BUTTER","CHEESE"]
+    meat=["CHICKEN","BEEF","PORK"]
+    dessert=["COOKIE","PIE","ICE","BAR"]
+
+
+    category_list=[vegetables,fruits,grain,nuts,meat,dairy,dessert]
+    days_remaining=[13,20,60,80,4,25,75]
+    global category_names
+    global catergory_sums
+    
+    i=0
+    exp_temp=0
+    for category in category_list:
+        for food in category:
+            if food in string_in:
+                item_category=category_names[i]
+                catergory_sums[i]+=1
+                exp_temp=days_remaining[i]
+            if item_category=="unknown":
+                item_category=="MISC"
+                exp_temp=90
+
+        i+=1
+    #print("category: ",item_category)
+    return(item_category, exp_temp)
+
+
+def operate_json():
+    time.sleep(0.1)
+    with open('json_file.json') as json_file:
+        data_s = json.load(json_file)
+        data = json.loads(data_s)
+        #print(data_s)
+        # Print the type of data variable
+        #print("Type:", type(data))
+        #print(data)
+        key_list=data.keys()
+        #print(key_list)
+        data_out=[]
+        print("data")
+        #print(data["receipts"][0]["items"])
+        for item in data["receipts"][0]["items"]:
+            #print(item["description"])
+            #print(designate_category(item["description"]))
+            cat_and_exp=designate_category(item["description"])
+            temp_data=[item["description"],item["amount"],cat_and_exp[0],cat_and_exp[1]]#item, cost, category, expiration
+            data_out.append(temp_data)
+        for item in data_out:
+            print(item)
+    j_out=open('json_out.json','w')
+    #with open('json_out.json') as j_out:
+    plt.pie(catergory_sums,labels=category_names)
+    plt.show()
+    plt.savefig("graph.jpg")
+    json.dump(data_out, j_out)
+    j_out.close()
+
+
+
+
+prev_op=False
+new_file=''
+
+if run_main:
+    new_file_decoded=False
+    new_file_prev=''
+    old_files=os.listdir(directory)
+    def check_dirs():
+        global new_file
+        global new_file_prev
+        global old_files
+        new_file=''
+
+        new_dirs=os.listdir(directory)
+        for item in new_dirs:
+            if item not in old_files:
+                new_file=item
+        if new_file_prev!=new_file:
+            print(new_file)
+            old_files=os.listdir(directory)
+            new_file_prev=new_file
+            return(1)
+        else:
+            old_files=os.listdir(directory)
+            new_file_prev=new_file
+            return(0)
+    prev_op=False
+    while(1):
+        new_im=check_dirs()
+        if new_im==1:
+            if run_ocr:
+                ocr_funct(new_file)
+            if not prev_op:
+                operate_json()
+                prev_op=True
+        else:
+            prev_op=False
+        time.sleep(0.1)

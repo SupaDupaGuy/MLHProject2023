@@ -1,0 +1,100 @@
+import requests
+import json
+import os
+import sys
+import time
+
+dir_check_b=False
+if dir_check_b:
+    directory="testfold"
+    new_file_decoded=False
+    old_files=os.listdir(directory)
+    new_file_prev=''
+    def check_dirs():
+        global old_files
+        global new_file_prev
+        new_dirs=os.listdir(directory)
+        new_file=''
+        #print(os.listdir(directory))
+        for item in new_dirs:
+            if item not in old_files:
+                new_file=item
+        if new_file_prev!=new_file:
+            print(new_file)
+        new_file_prev=new_file
+        old_files=new_dirs
+
+
+    while(1):
+        check_dirs()
+        time.sleep(0.1)
+
+run=False
+if run:
+    print("=== Python Receipt OCR Demo - Need help? Email support@asprise.com ===")
+
+    receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
+    imageFile = "rt.jpg" # // Modify this to use your own file if necessary
+    r = requests.post(receiptOcrEndpoint, data = { \
+      'client_id': 'TEST',        # Use 'TEST' for testing purpose \
+      'recognizer': 'auto',       # can be 'US', 'CA', 'JP', 'SG' or 'auto' \
+      'ref_no': 'ocr_python_123', # optional caller provided ref code \
+      }, \
+      files = {"file": open(imageFile, "rb")})
+    print(r.text)
+    print(type(r.text))
+    #print(r["ocr_type"])
+    with open("json_file.json", 'w', encoding='utf-8') as f:
+        json_data=r.text
+        json.dump(json_data,f)
+    f.close()
+    #print(r.text)
+    #print(r.text)
+
+#out_array
+catergory_sums=[0,0,0,0,0,0,0]
+category_names=["vegetables","fruits","grain","nuts","meat","dairy","dessert"]
+def designate_category(string_in):
+    item_category="unknown"
+
+    vegetables=["CARROTS","PICKLES","SQUASH","LETTUCE","SPINACH"]
+    fruits=["TOMATO","APPLE","BANANA","BERRY"]
+    grain=["OAT","WHEAT","GRAIN","PITA"]
+    nuts=["PEANUT","ALMOND","CASHEW"]
+    dairy=["MILK","YOGURT","EGG","CREAM","BUTTER","CHEESE"]
+    meat=["CHICKEN","BEEF","PORK"]
+    dessert=["COOKIE","PIE","ICE","BAR"]
+
+
+    category_list=[vegetables,fruits,grain,nuts,meat,dairy,dessert]
+    global category_names
+    global catergory_sums
+    
+    i=0
+    for category in category_list:
+        for food in category:
+            if food in string_in:
+                item_category=category_names[i]
+                catergory_sums[i]+=1
+        i+=1
+    print("category: ",item_category)
+    return(item_category)
+
+
+json_b=True
+if json_b:
+    with open('json_file.json') as json_file:
+        data_s = json.load(json_file)
+        data = json.loads(data_s)
+        print(data_s)
+        # Print the type of data variable
+        print("Type:", type(data))
+        #print(data)
+        key_list=data.keys()
+        print(key_list)
+        data_out=[]
+        print(data["receipts"][0]["items"])
+        for item in data["receipts"][0]["items"]:
+            temp_data=[item["description"],item["amount"]]#,item["cost"]]
+            print(item["description"])
+            print(designate_category(item["description"]))

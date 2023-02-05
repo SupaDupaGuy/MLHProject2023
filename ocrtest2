@@ -11,7 +11,7 @@ const options = {
   method: 'POST',
   url: 'https://api.edenai.run/v2/ocr/receipt_parser',
   headers: {
-    authorization: 'Bearer 🔑 Your_API_Key',
+    authorization: 'Bearer 🔑 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWRmY2E3YmEtYWQyZS00ZDQyLTkyYmYtMTAyZWIwYjQwMDNhIiwidHlwZSI6ImFwaV90b2tlbiJ9.jDV10ubev-ZsRvuTwiFynWY11ZPqlhnAhnQyoNGuVBM',
     'Content-Type': 'multipart/form-data; boundary=' + form.getBoundary()
   },
   data: form
